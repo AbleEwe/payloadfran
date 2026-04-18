@@ -36,10 +36,13 @@ export default buildConfig({
   plugins: [
     payloadCloudPlugin(),
     vercelBlobStorage({
+      // Unique object keys so re-uploading the same logical filename does not collide in Blob
+      addRandomSuffix: true,
       // Direct client uploads avoid Vercel’s ~4.5MB serverless body limit on POST /api/media
       clientUploads: true,
       collections: {
-        media: true,
+        // Required for public Blob URLs: otherwise Payload keeps /api/media/file/… (no local file → 404)
+        media: { disablePayloadAccessControl: true },
       },
       token: process.env.BLOB_READ_WRITE_TOKEN,
     }),
